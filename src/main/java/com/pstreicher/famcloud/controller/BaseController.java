@@ -1,6 +1,6 @@
 package com.pstreicher.famcloud.controller;
 
-import com.pstreicher.famcloud.domain.User;
+import com.pstreicher.famcloud.domain.UserInfo;
 import com.pstreicher.famcloud.service.BaseService;
 import com.pstreicher.famcloud.service.UserService;
 import org.springframework.security.core.Authentication;
@@ -57,8 +57,8 @@ public class BaseController {
 
     @RequestMapping( "/profile")
     public String profile(Authentication auth, Model model) {
-        User user = userService.getUser(auth);
-        model.addAttribute("user", user);
+        UserInfo userInfo = userService.getUser(auth);
+        model.addAttribute("userInfo", userInfo);
         return "profile";
     }
 

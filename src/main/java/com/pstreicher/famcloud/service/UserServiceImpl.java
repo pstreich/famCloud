@@ -1,6 +1,6 @@
 package com.pstreicher.famcloud.service;
 
-import com.pstreicher.famcloud.domain.User;
+import com.pstreicher.famcloud.domain.UserInfo;
 import com.pstreicher.famcloud.repository.UserRepository;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
@@ -19,27 +19,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUser(Authentication auth) {
+    public UserInfo getUser(Authentication auth) {
         IDToken token = getKeycloakUserInfos(auth);
         if (token == null)
             return null;
 
-        User user = userRepository.findByUsername(token.getPreferredUsername());
-        if (user == null) {
-            user = createNewUser(token);
-            user = userRepository.save(user);
+        UserInfo userInfo = userRepository.findByUsername(token.getPreferredUsername());
+        if (userInfo == null) {
+            userInfo = createNewUser(token);
+            userInfo = userRepository.save(userInfo);
         }
-        return user;
+        return userInfo;
     }
 
-    private User createNewUser(IDToken token) {
-        User user = new User();
-        user.setUsername(token.getPreferredUsername());
-        user.setFirstName(token.getGivenName());
-        user.setLastName(token.getFamilyName());
-        user.setEmail(token.getEmail());
+    private UserInfo createNewUser(IDToken token) {
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUsername(token.getPreferredUsername());
+        userInfo.setFirstName(token.getGivenName());
+        userInfo.setLastName(token.getFamilyName());
+        userInfo.setEmail(token.getEmail());
 
-        return user;
+        return userInfo;
     }
 
     protected IDToken getKeycloakUserInfos(Authentication auth) {

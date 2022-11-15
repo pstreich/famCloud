@@ -1,8 +1,8 @@
 package com.pstreicher.famcloud.repository;
 
-import com.pstreicher.famcloud.domain.User;
+import com.pstreicher.famcloud.domain.UserInfo;
 import org.springframework.data.repository.CrudRepository;
 
-public interface UserRepository extends CrudRepository<User, Long> {
-    User findByUsername(String username);
+public interface UserRepository extends CrudRepository<UserInfo, Long> {
+    UserInfo findByUsername(String username);
 }
