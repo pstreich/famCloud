@@ -28,6 +28,8 @@ jobs:
       - run:
           name: Test
           command: mvn test -Ptest
+      # Then upload to codecov.io
+      - codecov/upload
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -36,4 +38,3 @@ workflows:
     # Inside the workflow, you define the jobs you want to run.
     jobs:
       - build-and-test
-      - codecov/upload
