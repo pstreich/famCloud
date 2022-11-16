@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
         return userInfo;
     }
 
-    private UserInfo createNewUser(IDToken token) {
+    protected UserInfo createNewUser(IDToken token) {
         UserInfo userInfo = new UserInfo();
         userInfo.setUsername(token.getPreferredUsername());
         userInfo.setFirstName(token.getGivenName());
