@@ -18,7 +18,6 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
     }
 
-    @Override
     public UserInfo getUser(Authentication auth) {
         IDToken token = getKeycloakUserInfos(auth);
         if (token == null)
@@ -32,7 +31,7 @@ public class UserServiceImpl implements UserService {
         return userInfo;
     }
 
-    protected UserInfo createNewUser(IDToken token) {
+    public UserInfo createNewUser(IDToken token) {
         UserInfo userInfo = new UserInfo();
         userInfo.setUsername(token.getPreferredUsername());
         userInfo.setFirstName(token.getGivenName());
