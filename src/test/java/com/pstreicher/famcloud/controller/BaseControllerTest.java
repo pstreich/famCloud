@@ -1,11 +1,12 @@
 package com.pstreicher.famcloud.controller;
 
 import com.pstreicher.famcloud.domain.UserInfo;
-import com.pstreicher.famcloud.service.BaseService;
 import com.pstreicher.famcloud.service.UserService;
+import com.pstreicher.famcloud.util.AuthUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,9 +27,6 @@ class BaseControllerTest {
     UserService userService;
 
     @Mock
-    BaseService baseService;
-
-    @Mock
     Model model;
 
     @Mock
@@ -37,43 +35,54 @@ class BaseControllerTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        baseController = new BaseController(baseService, userService);
+        baseController = new BaseController(userService);
     }
 
     @Test
     public void mockMVC() throws Exception {
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(baseController).build();
-        mockMvc.perform(get("/"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("index"));
+        try (MockedStatic<AuthUtil> mocked = mockStatic(AuthUtil.class)) {
+            //given
+            boolean isAuthZ = true;
+            mocked.when(AuthUtil::isAuthorized).thenReturn(isAuthZ);
+            MockMvc mockMvc = MockMvcBuilders.standaloneSetup(baseController).build();
+
+            //when;then
+            mockMvc.perform(get("/"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("index"));
+        }
     }
 
     @Test
     void indexWithValidAuth() {
-        //given
-        boolean isAuthZ = true;
-        when(baseService.isAuthorized()).thenReturn(isAuthZ);
+        try (MockedStatic<AuthUtil> mocked = mockStatic(AuthUtil.class)) {
+            //given
+            boolean isAuthZ = true;
+            mocked.when(AuthUtil::isAuthorized).thenReturn(isAuthZ);
 
-        //when
-        String viewName = baseController.index(model);
+            //when
+            String viewName = baseController.index(model);
 
-        //then
-        assertEquals("index", viewName);
-        verify(model).addAttribute("isAuthZ", isAuthZ);
+            //then
+            assertEquals("index", viewName);
+            verify(model).addAttribute("isAuthZ", isAuthZ);
+        }
     }
 
     @Test
     void indexWithInvalidAuth() {
-        //given
-        boolean isAuthZ = false;
-        when(baseService.isAuthorized()).thenReturn(isAuthZ);
+        try (MockedStatic<AuthUtil> mocked = mockStatic(AuthUtil.class)) {
+            //given
+            boolean isAuthZ = false;
+            mocked.when(AuthUtil::isAuthorized).thenReturn(isAuthZ);
 
-        //when
-        String viewName = baseController.index(model);
+            //when
+            String viewName = baseController.index(model);
 
-        //then
-        assertEquals("index",viewName);
-        verify(model).addAttribute("isAuthZ", isAuthZ);
+            //then
+            assertEquals("index",viewName);
+            verify(model).addAttribute("isAuthZ", isAuthZ);
+        }
     }
 
     @Test
