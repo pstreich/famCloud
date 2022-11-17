@@ -27,7 +27,7 @@ jobs:
       # Then run your tests!
       - run:
           name: Test
-          command: mvn test -Ptest
+          command: mvn verify
       # Then upload to codecov.io
       - codecov/upload
 
