@@ -10,9 +10,7 @@ public class BaseServiceImpl implements BaseService{
 
     public boolean isAuthorized() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken)
-            return false;
-        return true;
+        return auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken);
 
     }
 }

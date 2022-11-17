@@ -29,9 +29,6 @@ class UserServiceImplTest {
     @Mock
     Authentication auth;
 
-    @Mock
-    KeycloakPrincipal<KeycloakSecurityContext> kPrincipal;
-
     static IDToken idTokenFixture;
     static UserInfo userInfoFixture;
     static KeycloakPrincipal<KeycloakSecurityContext> principalFixture;
@@ -63,7 +60,7 @@ class UserServiceImplTest {
     }
 
     private static UserInfo createUserInfoFixture() {
-        return new UserInfo().builder()
+        return UserInfo.builder()
                 .username("username")
                 .firstName("John")
                 .lastName("Thompson")

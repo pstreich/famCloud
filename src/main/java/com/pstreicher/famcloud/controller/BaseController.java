@@ -22,13 +22,8 @@ public class BaseController {
         this.userService = userService;
     }
 
-//    @RequestMapping(value = {"/login"})
-//    public String login(Authentication authentication) throws ServletException {
-//        authentication.
-//    }
-
     @RequestMapping(value = {"/access-denied"})
-    public String accessDenied() throws ServletException {
+    public String accessDenied() {
         return ("access-denied");
     }
 
@@ -39,7 +34,7 @@ public class BaseController {
     }
 
     @RequestMapping("/contact-us")
-    public String getContactUs(Model model) {
+    public String getContactUs() {
         return "contact-us";
     }
 
@@ -51,7 +46,7 @@ public class BaseController {
     }
 
     @RequestMapping( "/home")
-    public String getHome(Model model) {
+    public String getHome() {
         return "home";
     }
 

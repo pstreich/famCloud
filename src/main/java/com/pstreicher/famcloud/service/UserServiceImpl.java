@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
         Principal principal = (Principal) auth.getPrincipal();
         IDToken token = null;
         if (principal instanceof KeycloakPrincipal) {
+            @SuppressWarnings("unchecked")
             KeycloakPrincipal<KeycloakSecurityContext> kPrincipal = (KeycloakPrincipal<KeycloakSecurityContext>) principal;
             token = kPrincipal.getKeycloakSecurityContext().getIdToken();
         }
