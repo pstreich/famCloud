@@ -1,8 +1,8 @@
 package com.pstreicher.famcloud.controller;
 
 import com.pstreicher.famcloud.domain.UserInfo;
-import com.pstreicher.famcloud.service.BaseService;
 import com.pstreicher.famcloud.service.UserService;
+import com.pstreicher.famcloud.util.AuthUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,11 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class BaseController {
 
-    private final BaseService baseService;
     private final UserService userService;
 
-    public BaseController(BaseService baseService, UserService userService) {
-        this.baseService = baseService;
+    public BaseController(UserService userService) {
         this.userService = userService;
     }
 
@@ -40,7 +38,7 @@ public class BaseController {
 
     @RequestMapping({"", "/"})
     public String index(Model model) {
-        boolean isAuthZ = baseService.isAuthorized();
+        boolean isAuthZ = AuthUtil.isAuthorized();
         model.addAttribute("isAuthZ", isAuthZ);
         return "index";
     }
