@@ -23,5 +23,8 @@ public class UserInfo {
     private String email;
     private String username;
 
+    @Lob
+    private byte[] profileImage;
+
 
 }

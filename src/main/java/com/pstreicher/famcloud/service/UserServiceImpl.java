@@ -2,6 +2,7 @@ package com.pstreicher.famcloud.service;
 
 import com.pstreicher.famcloud.domain.UserInfo;
 import com.pstreicher.famcloud.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.representations.IDToken;
@@ -9,8 +10,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.Base64;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
@@ -39,6 +42,24 @@ public class UserServiceImpl implements UserService {
         userInfo.setEmail(token.getEmail());
 
         return userInfo;
+    }
+
+    @Override
+    public UserInfo getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    @Override
+    public UserInfo updateProfileImage(String username, String b64Image) {
+        UserInfo userInfo = getUserByUsername(username);
+        if (userInfo == null) {
+            log.error("cannot find user with username: " + username);
+            return null;
+        } else {
+            userInfo.setProfileImage(Base64.getDecoder().decode(b64Image));
+            userInfo = userRepository.save(userInfo);
+            return userInfo;
+        }
     }
 
     protected IDToken getKeycloakUserInfos(Authentication auth) {
