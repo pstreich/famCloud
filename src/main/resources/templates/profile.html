@@ -8,10 +8,21 @@
   <title>Profile</title>
   <script src="https://code.jquery.com/jquery-3.6.1.slim.min.js" integrity="sha256-w8CvhFs7iHNVUtnSP0YKEg00p9Ih13rlL9zGqvLdePA=" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
   <link rel="stylesheet" th:href="@{/css/famcloud.css}">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
   <script type="text/javascript" th:src="@{/js/famcloud.js}"></script>
+  <script type="text/javascript" th:src="@{/js/radar.js}"></script>
   <script type="text/javascript" th:src="@{/js/identicon.js}"></script>
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+
+    var userInfo_hobbyColor = /*[[${userInfo.getHobbyRadar() != null ? userInfo.getHobbyRadar().color : 'black'}]]*/ 'default';
+    console.log(userInfo_hobbyColor);
+
+    /*]]>*/
+  </script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -28,28 +39,35 @@
       <li class="nav-item">
         <a class="nav-link" href="#">Profile</a>
       </li>
+      <li class="nav-item" th:if="${isAuthZ}">
+        <a class="nav-link" href="/family">Family</a>
+      </li>
     </ul>
   </div>
 </nav>
 <div class="container">
   <div class="row">
-    <div class="col-sm-6">
+    <div class="col-sm-12">
       <h2 class="form-signin-heading">Profile</h2>
     </div>
-    <div class="col-sm-6" th:if="${userInfo.profileImage}">
-      <img th:src="|data:image/png;base64,${userAvatar}" alt="">
+    <div class="col-sm-12" th:if="${userInfo.profileImage}">
+      <img id="fc-profile-avatar" th:src="|data:image/png;base64,${userInfo.profileImage}" alt="">
     </div>
-<!--    <div class="col-sm-6">-->
-<!--      <img src="https://i.pinimg.com/736x/fe/6c/b1/fe6cb11ef8fbaec40ab56283b6eb0ba4.jpg" alt="castle-logo" style="max-height: 75px;">-->
-<!--    </div>-->
   </div>
   <hr>
   <div class="row">
     <div class="col-sm-12">
-      <div class="card">
-        <div class="card-header"><span>Personal Info</span></div>
-        <div class="row align-items-center justify-content-center">
-          <div class="card-body col-sm-5">
+      <div class="card mb-3">
+        <div class="card-header">
+          <div class="row" style="cursor: pointer" data-toggle="collapse" data-target="#collapsePersonalInfo" aria-expanded="true" aria-controls="collapsePersonalInfo">
+            <div class="col-sm-11">Personal Info</div>
+            <div class="col-sm-1">
+              <span class="fc-collapse-caret"></span>
+            </div>
+          </div>
+        </div>
+        <div id="collapsePersonalInfo" class="card-body row align-items-center justify-content-center collapse show">
+          <div class="col-sm-5">
             <ul>
               <li th:text="${userInfo.firstName}"></li>
               <li th:text="${userInfo.lastName}"></li>
@@ -67,15 +85,78 @@
               <button class="btn btn-success mt-1">
                 Save
               </button>
-              <input type="text" name="username" id="form-identicon-username-input" th:value="${userInfo.getUsername()}">
+              <input type="hidden" name="username" id="form-identicon-username-input" th:value="${userInfo.getUsername()}">
               <input type="hidden" th:field="*{b64Image}" id="form-identicon-image-input">
             </form>
           </div>
           <div class="col-sm-4" id="identicon"></div>
         </div>
       </div>
+      <div class="card mb-3">
+        <div class="card-header">
+          <div class="row" style="cursor: pointer" data-toggle="collapse" data-target="#collapseInterests" aria-expanded="true" aria-controls="collapseInterests">
+            <div class="col-sm-3">Interests</div>
+            <div th:if="${userInfo.getHobbyRadar()} != null" th:id="fc-hobby-points-header" class="col-sm-8" >0 Points available</div>
+            <div th:unless="${userInfo.getHobbyRadar()} != null" th:id="fc-hobby-points-header" class="col-sm-8" >21 Points available</div>
+            <div class="col-sm-1">
+              <span class="fc-collapse-caret"></span>
+            </div>
+          </div>
+        </div>
+        <div id="collapseInterests" class="collapse show">
+          <div class="card-body">
+            <div class="row align-items-center justify-content-center">
+              <div class="col-sm-6">
+                  <div class="row fc-interests-listEntry-wrapper" th:each="hobby, iterStat : ${hobbies}">
+                    <span th:text="${hobby.getHobbyName()}" class="col-sm-6 fc-interests-listEntry"></span>
+                    <div class="col-sm-2">
+                      <input id="fc-interests-listEntry-color" th:if="${userInfo.getHobbyRadar()} != null" type="hidden" th:value="${userInfo.getHobbyRadar().color}">
+                      <th:block th:switch="${hobby.getHobbyName()}">
+                        <input th:case="'Sports'" th:value="${userInfo.getHobbyRadar()} != null ? ${userInfo.getHobbyRadar().sportsValue} : 0" th:name="pointRadio + ${iterStat.index}" type="number" step="1" max="5" min="0" class="fc-interests-points-input" style="width: 100%" onkeydown="return false;">
+                        <input th:case="'Games'" th:value="${userInfo.getHobbyRadar()} != null ? ${userInfo.getHobbyRadar().gamesValue} : 0" th:name="pointRadio + ${iterStat.index}" type="number" step="1" max="5" min="0" class="fc-interests-points-input" style="width: 100%" onkeydown="return false;">
+                        <input th:case="'Creativity'" th:value="${userInfo.getHobbyRadar()} != null ? ${userInfo.getHobbyRadar().creativityValue} : 0" th:name="pointRadio + ${iterStat.index}" type="number" step="1" max="5" min="0" class="fc-interests-points-input" style="width: 100%" onkeydown="return false;">
+                        <input th:case="'Outdoor'" th:value="${userInfo.getHobbyRadar()} != null ? ${userInfo.getHobbyRadar().outdoorValue} : 0" th:name="pointRadio + ${iterStat.index}" type="number" step="1" max="5" min="0" class="fc-interests-points-input" style="width: 100%" onkeydown="return false;">
+                        <input th:case="'Travel'" th:value="${userInfo.getHobbyRadar()} != null ? ${userInfo.getHobbyRadar().travelValue} : 0" th:name="pointRadio + ${iterStat.index}" type="number" step="1" max="5" min="0" class="fc-interests-points-input" style="width: 100%" onkeydown="return false;">
+                        <input th:case="'Reading'" th:value="${userInfo.getHobbyRadar()} != null ? ${userInfo.getHobbyRadar().readingValue} : 0" th:name="pointRadio + ${iterStat.index}" type="number" step="1" max="5" min="0" class="fc-interests-points-input" style="width: 100%" onkeydown="return false;">
+                        <input th:case="'Films & Series'" th:value="${userInfo.getHobbyRadar()} != null ? ${userInfo.getHobbyRadar().filmsSeriesValue} : 0" th:name="pointRadio + ${iterStat.index}" type="number" step="1" max="5" min="0" class="fc-interests-points-input" style="width: 100%" onkeydown="return false;">
+                      </th:block>
+                    </div>
+                  </div>
+                  <div id="fc-hobbyRadar-form-alert" class="alert alert-danger col-sm-8" role="alert">
+                    Please use all of your points :)
+                  </div>
+                  <button id="fc-hobbyRadar-form-submit" type="button" class="btn btn-success col-sm-8">Save</button>
+              </div>
+              <div id="fc-interests-radar-wrapper" class="col-sm-6">
+                <div id="fc-interests-radar"></div>
+                <div id="fc-interests-radar-palette">
+                  <span>Change Color: </span>
+                  <button class="btn fc-interests-radar-palette-btn">
+                    <div class="fc-interests-radar-palette-btn-inner blue"></div>
+                  </button>
+                  <button class="btn fc-interests-radar-palette-btn">
+                    <div class="fc-interests-radar-palette-btn-inner green"></div>
+                  </button>
+                  <button class="btn fc-interests-radar-palette-btn">
+                    <div class="fc-interests-radar-palette-btn-inner red"></div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
+  <form id="fc-hobbyRadar-form" action="#" th:action="@{/radar-store}" th:object="${hobbyRadar}" method="post">
+    <input type="hidden" data-name="hobbyRadar['Sports']" th:field="*{sportsValue}">
+    <input type="hidden" data-name="hobbyRadar['Films & Series']" th:field="*{filmsSeriesValue}">
+    <input type="hidden" data-name="hobbyRadar['Reading']" th:field="*{readingValue}">
+    <input type="hidden" data-name="hobbyRadar['Travel']" th:field="*{travelValue}">
+    <input type="hidden" data-name="hobbyRadar['Outdoor']" th:field="*{outdoorValue}">
+    <input type="hidden" data-name="hobbyRadar['Creativity']" th:field="*{creativityValue}">
+    <input type="hidden" data-name="hobbyRadar['Games']" th:field="*{gamesValue}">
+    <input type="hidden" data-name="color" th:field="*{color}">
+  </form>
 </div>
 </body></html>

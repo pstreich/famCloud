@@ -1,6 +1,8 @@
 package com.pstreicher.famcloud.service;
 
 import com.pstreicher.famcloud.domain.UserInfo;
+import com.pstreicher.famcloud.dto.UserInfoDTO;
+import com.pstreicher.famcloud.mapper.UserInfoMapper;
 import com.pstreicher.famcloud.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.KeycloakPrincipal;
@@ -11,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @Slf4j
@@ -21,7 +26,17 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
     }
 
-    public UserInfo getUser(Authentication auth) {
+    public UserInfoDTO getUserInfoDTO(Authentication auth) {
+        UserInfo userInfo = getUserInfoFromKeycloak(auth);
+
+        return UserInfoMapper.MAPPER.userInfoToUserInfoDTO(userInfo);
+    }
+
+    public UserInfo getUserInfo(Authentication auth) {
+        return getUserInfoFromKeycloak(auth);
+    }
+
+    private UserInfo getUserInfoFromKeycloak(Authentication auth) {
         IDToken token = getKeycloakUserInfos(auth);
         if (token == null)
             return null;
@@ -60,6 +75,18 @@ public class UserServiceImpl implements UserService {
             userInfo = userRepository.save(userInfo);
             return userInfo;
         }
+    }
+
+    @Override
+    public UserInfo updateUser(UserInfo userInfo) {
+        return userRepository.save(userInfo);
+    }
+
+    @Override
+    public List<UserInfoDTO> getAllusers() {
+        return StreamSupport.stream(userRepository.findAll().spliterator(), false)
+                .map(UserInfoMapper.MAPPER::userInfoToUserInfoDTO)
+                .collect(Collectors.toList());
     }
 
     protected IDToken getKeycloakUserInfos(Authentication auth) {

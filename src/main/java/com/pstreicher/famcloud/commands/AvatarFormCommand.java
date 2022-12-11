@@ -1,9 +1,7 @@
-package com.pstreicher.famcloud.domain;
+package com.pstreicher.famcloud.commands;
 
 
 import lombok.Data;
-
-import java.util.Base64;
 
 @Data
 public class AvatarFormCommand {

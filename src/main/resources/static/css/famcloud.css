@@ -2,3 +2,96 @@
     display:block;
     margin: 1rem auto auto;
 }
+
+.collapse.show {
+    display: flex;
+}
+
+div[aria-expanded=false] .fc-collapse-caret::before{
+    font-family: 'Bootstrap-icons';
+    content: '\F235';
+}
+
+div[aria-expanded=true] .fc-collapse-caret::before{
+    font-family: 'Bootstrap-icons';
+    content: '\F229';
+}
+
+.fc-interests-listEntry-wrapper{
+    margin-bottom: 2rem;
+}
+
+.fc-interests-listEntry{
+    list-style: none;
+}
+
+/** RADAR **/
+
+svg{
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.radar-chart .area {
+    fill-opacity: 0.7;
+}
+
+.radar-chart.focus .area {
+    fill-opacity: 0.3;
+}
+
+.radar-chart.focus .area.focused {
+    fill-opacity: 0.9;
+}
+
+.area.germany,
+.germany .circle {
+    fill: #3a4;
+    stroke: none;
+}
+
+.area.argentina,
+.argentina .circle {
+    fill: #f13;
+    stroke: none;
+}
+
+.radar-chart .axis line {
+    stroke: grey;
+    stroke-width: 1;
+}
+
+.radar-chart .level {
+    stroke: grey;
+    stroke-width: 0.5;
+}
+
+#fc-hobbyRadar-form-alert {
+    display: none;
+}
+
+#fc-interests-radar{
+    margin-bottom: -4.5rem;
+}
+
+.fc-interests-radar-palette-btn{
+    padding: 4px;
+}
+
+.fc-interests-radar-palette-btn-inner.blue{
+    width: 15px;
+    height: 15px;
+    background-color: cornflowerblue;
+}
+
+.fc-interests-radar-palette-btn-inner.red{
+    width: 15px;
+    height: 15px;
+    background-color: darkred;
+}
+
+.fc-interests-radar-palette-btn-inner.green{
+    width: 15px;
+    height: 15px;
+    background-color: forestgreen;
+}

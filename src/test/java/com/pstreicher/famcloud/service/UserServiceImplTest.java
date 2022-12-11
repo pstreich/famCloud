@@ -1,6 +1,8 @@
 package com.pstreicher.famcloud.service;
 
 import com.pstreicher.famcloud.domain.UserInfo;
+import com.pstreicher.famcloud.dto.UserInfoDTO;
+import com.pstreicher.famcloud.mapper.UserInfoMapper;
 import com.pstreicher.famcloud.repository.UserRepository;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -27,7 +29,11 @@ class UserServiceImplTest {
     @Mock
     Authentication auth;
 
+//    @Mock
+//    UserInfoMapper userInfoMapper;
+
     static IDToken idTokenFixture;
+    static UserInfoDTO userInfoDTOFixture;
     static UserInfo userInfoFixture;
     static KeycloakPrincipal<KeycloakSecurityContext> principalFixture;
 
@@ -36,6 +42,7 @@ class UserServiceImplTest {
         idTokenFixture = createIdTokenFixture();
         principalFixture = createPrincipalFixture();
         userInfoFixture = createUserInfoFixture();
+        userInfoDTOFixture = createUserInfoDTOFixture();
     }
 
     @BeforeEach
@@ -49,12 +56,21 @@ class UserServiceImplTest {
         when(auth.getPrincipal()).thenReturn(principalFixture);
         when(userRepository.save(any())).thenReturn(userInfoFixture);
 
-        assertEquals(userInfoFixture,  userService.getUser(auth));
+        assertEquals(userInfoDTOFixture,  userService.getUserInfoDTO(auth));
     }
 
     @Test
     void createNewUser() {
-        assertEquals(userInfoFixture, userService.createNewUser(idTokenFixture));
+        assertEquals(userInfoDTOFixture, UserInfoMapper.MAPPER.userInfoToUserInfoDTO(userService.createNewUser(idTokenFixture)));
+    }
+
+    private static UserInfoDTO createUserInfoDTOFixture() {
+        return UserInfoDTO.builder()
+                .username("username")
+                .firstName("John")
+                .lastName("Thompson")
+                .email("jthompson@example.com")
+                .build();
     }
 
     private static UserInfo createUserInfoFixture() {

@@ -11,4 +11,8 @@ public class AuthUtil {
         return auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken);
 
     }
+
+    public static String convertToBase64() {
+        return "";
+    }
 }

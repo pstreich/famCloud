@@ -6,35 +6,34 @@ import org.hibernate.Hibernate;
 import javax.persistence.*;
 import java.util.Objects;
 
+@Entity
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Builder
-@AllArgsConstructor
-@Entity
-public class UserInfo {
+public class HobbyRadar {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Long id;
+    private Integer sportsValue;
+    private Integer gamesValue;
+    private Integer creativityValue;
+    private Integer outdoorValue;
+    private Integer travelValue;
+    private Integer readingValue;
+    private Integer filmsSeriesValue;
+    private String color;
 
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String username;
-
-    @Lob
-    private byte[] profileImage;
     @OneToOne
-    private HobbyRadar hobbyRadar;
+    UserInfo userInfo;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        UserInfo userInfo = (UserInfo) o;
-        return id != null && Objects.equals(id, userInfo.id);
+        HobbyRadar that = (HobbyRadar) o;
+        return id != null && Objects.equals(id, that.id);
     }
 
     @Override

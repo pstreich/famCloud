@@ -1,6 +1,7 @@
 package com.pstreicher.famcloud.controller;
 
-import com.pstreicher.famcloud.domain.UserInfo;
+import com.pstreicher.famcloud.dto.UserInfoDTO;
+import com.pstreicher.famcloud.service.HobbyRadarService;
 import com.pstreicher.famcloud.service.UserService;
 import com.pstreicher.famcloud.util.AuthUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,9 @@ class BaseControllerTest {
     UserService userService;
 
     @Mock
+    HobbyRadarService hobbyRadarService;
+
+    @Mock
     Model model;
 
     @Mock
@@ -35,7 +39,7 @@ class BaseControllerTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        baseController = new BaseController(userService);
+        baseController = new BaseController(userService, hobbyRadarService);
     }
 
     @Test
@@ -87,15 +91,19 @@ class BaseControllerTest {
 
     @Test
     void profile() {
-        //given
-        UserInfo userInfo = new UserInfo();
-        when(userService.getUser(auth)).thenReturn(userInfo);
+        try (MockedStatic<AuthUtil> mocked = mockStatic(AuthUtil.class)) {
+            //given
+            UserInfoDTO userInfo = new UserInfoDTO();
+            when(userService.getUserInfoDTO(auth))
+                    .thenReturn(userInfo);
+            mocked.when(AuthUtil::isAuthorized).thenReturn(true);
 
-        //when
-        String viewName = baseController.profile(auth, model);
+            //when
+            String viewName = baseController.profile(auth, model);
 
-        //then
-        assertEquals("profile", viewName);
-        verify(model).addAttribute("userInfo", userInfo);
+            //then
+            assertEquals("profile", viewName);
+            verify(model).addAttribute("userInfo", userInfo);
+        }
     }
 }
